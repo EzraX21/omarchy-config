@@ -78,3 +78,36 @@ docs: GOTCHAS 补 system-ui 无法重映射
 
 `.testhome/`、`*.bak.*`、任何包含个人路径或主机名的调试产物（都已写进 `.gitignore`）。
 提交前 `git status --short` 看一眼。
+
+## 首次推送到 GitHub
+
+```bash
+# 已安装 gh CLI 的话（推荐）
+gh repo create omarchy-config --public --source=. --remote=origin --push
+
+# 没装 gh：网页上新建空仓库，然后
+git remote add origin git@github.com:<你的用户名>/omarchy-config.git
+git branch -M main
+git push -u origin main
+```
+
+推完两件小事：
+
+1. **替换徽章里的 `OWNER`** —— `README.md` 顶部与 `CHANGELOG.md` 末尾的链接都要改；
+2. 在仓库 Settings → Topics 里填：
+   `omarchy` `archlinux` `fastfetch` `dotfiles` `hyprland` `maple-font`
+
+## 发版流程
+
+```bash
+# 1) 改 VERSION 与 CHANGELOG（[未发布] → [x.y.z] + 日期）
+# 2) 确认干净
+git status --short && bash tests/smoke.sh
+# 3) 提交、打标签、推送
+git commit -am "chore(release): v0.2.0"
+git tag -a v0.2.0 -m "v0.2.0"
+git push && git push origin v0.2.0
+```
+
+`VERSION` 是脚本读取的单一事实来源（`./install.sh status` 会显示它），
+所以改版本时**先改 `VERSION`**，再同步 `CHANGELOG.md` 和 `install.sh` 的提交标题。

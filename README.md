@@ -3,6 +3,15 @@
 把 Omarchy 桌面上「好看的那一套」整理成可复现、可回滚的项目：fastfetch 信息面板（带随机立绘 logo）、
 终端/应用的全局字体，以及它们背后所有的坑与验证记录。
 
+[![check](https://github.com/OWNER/omarchy-config/actions/workflows/check.yml/badge.svg)](https://github.com/OWNER/omarchy-config/actions/workflows/check.yml)
+![platform](https://img.shields.io/badge/platform-Omarchy%20%7C%20Arch-1793d1)
+![shell](https://img.shields.io/badge/shell-bash%205-4eaa25)
+![smoke](https://img.shields.io/badge/smoke-25%20assertions-brightgreen)
+![license](https://img.shields.io/badge/license-MIT%20%2B%20AGPL--3.0-blue)
+
+<!-- 推送后把上面所有 OWNER 换成你的 GitHub 用户名（或组织名） -->
+
+
 > 面向 **Omarchy（Arch + Hyprland）** 的桌面级配置，不是系统安装脚本。
 > 不碰 `/usr/share/omarchy/`，不改包管理器源，不装来路不明的二进制。
 
@@ -27,6 +36,56 @@ cd omarchy-config
 ```bash
 fastfetch        # 第一次会自动补 5 张图，之后每次换一张
 ```
+
+## 预览
+
+`omarchy` profile（默认）—— 保留系统原三栏框，只把左侧 logo 换成随机下载图：
+
+```text
+
+
+  ██████████████████████████████████████████████████████      ┌──────────────────────Hardware──────────────────────┐
+  ██████████████████████████████████████████████████████      │ ├: Intel(R) Core(TM) i5-6500 (4) @ 3.60 GHz
+  ████                     ████                     ████      │ ├: HD Graphics 530
+  ████                     ████                     ████      │ ├󱄄: 1920x1080 in 24", 60 Hz [External]
+  ████    █████████████████████         ████████    ████      │ ├󱄄: 1920x1080 @ 1.25x in 31", 60 Hz [External]
+  ████    █████████████████████         ████████    ████      │ ├󰋊: 77.69 GiB / 236.46 GiB (33%) - btrfs [Read-only]
+  ████    ████                              ████    ████      │ ├: 6.24 GiB / 15.48 GiB (40%)
+  ████    ████                              ████    ████      └ └󰓡: 0 B / 30.96 GiB (0%)
+  ████    ████                              ████    ████      └────────────────────────────────────────────────────┘
+  ████    ████                              ████    ████
+  ████    ████                              ████    ████      ┌──────────────────────Software──────────────────────┐
+  ████    ████                              ████    ████       OS: Omarchy 4.5.0-3
+  ████████████                              ████    ████      │ ├󰔫: unknown / stable
+  ████████████                              ████    ████      │ ├: Linux 7.2.15-1-omarchy
+  ████    ████                              ████    ████      │ ├: Hyprland 0.57.2 (Wayland)
+  ████    ████                              ████    ████      │ ├: dumb
+```
+
+`shorin` profile —— 三段式树形（OS/KER/PAK/AGE/USR · WM · 硬件）：
+
+```text
+
+  ██████████████████████████████████  OS Omarchy x86_64
+  ██              ██              ██   ├   KER  Linux 7.2.15-1-omarchy
+  ██   █████████████       ████   ██   ├   PAK  1180
+  ██   ██                    ██   ██   ├   AGE  10 days
+  ██   ██                    ██   ██   └   USR  user@host
+  ██   ██                    ██   ██
+  ██   ██                    ██   ██
+  ███████                    ██   ██  WM Hyprland 0.57.2 (Wayland)
+  ██   ██                    ██   ██   ├   SHE  bash 5.3.20
+  ██   ██                    ██   ██   ├   TER  dumb
+  ██   ██                    ██   ██
+  ██   ██                    ██   ██
+  ██   ████████████████████████   ██   ├   CPU  Intel(R) Core(TM) i5-6500 (4) @ 3.60 GHz
+  ██              ██              ██   ├   MEM  6.24 GiB / 15.48 GiB (40%)
+  ██████████████████   █████████████   ├   SWP  0 B / 30.96 GiB (0%)
+```
+
+> 上面是 `fastfetch --pipe` 的纯文本渲染，所以终端名显示 `dumb`（真实终端里是 `foot`），
+> 图形 logo 也只能退化成方块。完整效果运行 `./install.sh` 后自己看。
+> 想补真截图：在 foot 里跑 `fastfetch`，用 `omarchy capture screenshot` 存到 `docs/images/` 即可。
 
 ## 命令一览
 
@@ -144,6 +203,7 @@ CI（`.github/workflows/check.yml`）跑四件事：`bash -n` 全量、`shellche
   （本项目的 fastfetch 素材与部分认知来自该审计）。
 - [`THIRD_PARTY.md`](THIRD_PARTY.md) —— 来源、许可与修改点。
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 加新布局的步骤、脚本约定、许可注意。
+- [`CHANGELOG.md`](CHANGELOG.md) —— 版本变更记录。
 
 ## 许可
 

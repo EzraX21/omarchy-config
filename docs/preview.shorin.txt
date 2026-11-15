@@ -1,0 +1,24 @@
+
+  ██████████████████████████████████  OS Omarchy x86_64
+  ██              ██              ██   ├   KER  Linux 7.2.15-1-omarchy
+  ██   █████████████       ████   ██   ├   PAK  1180
+  ██   ██                    ██   ██   ├   AGE  10 days
+  ██   ██                    ██   ██   └   USR  user@host
+  ██   ██                    ██   ██
+  ██   ██                    ██   ██
+  ███████                    ██   ██  WM Hyprland 0.57.2 (Wayland)
+  ██   ██                    ██   ██   ├   SHE  bash 5.3.20
+  ██   ██                    ██   ██   ├   TER  dumb
+  ██   ██                    ██   ██
+  ██   ██                    ██   ██
+  ██   ████████████████████████   ██   ├   CPU  Intel(R) Core(TM) i5-6500 (4) @ 3.60 GHz
+  ██              ██              ██   ├   MEM  6.24 GiB / 15.48 GiB (40%)
+  ██████████████████   █████████████   ├   SWP  0 B / 30.96 GiB (0%)
+                                       ├ 󰢮  GPU  Intel HD Graphics 530
+                                       ├   MON  24B2W1 1920x1080@60
+                                       ├   MON  RTK FHD HDR  1920x1080@60
+                                       └ 󰋊  DIS  77.69 GiB / 236.46 GiB (33%) - btrfs [Read-only]
+
+
+
+

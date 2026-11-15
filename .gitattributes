@@ -1,0 +1,15 @@
+# 统一用 LF，避免在 Windows 上编辑后整文件 diff
+* text=auto eol=lf
+
+# 脚本必须保持 LF，否则 shebang 失效
+*.sh   text eol=lf
+bin/ff text eol=lf
+
+# 二进制/素材不做行尾转换
+*.png  binary
+*.jpg  binary
+*.ttf  binary
+*.otf  binary
+
+# 让 GitHub 正确统计语言构成
+*.jsonc linguist-language=JSONC
