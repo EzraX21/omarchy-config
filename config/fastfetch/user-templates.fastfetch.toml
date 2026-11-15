@@ -1,0 +1,4 @@
+[templates.fastfetch]
+input_path = '~/.config/noctalia/templates/fastfetch-config.jsonc'
+output_path = '~/.config/fastfetch/config.jsonc'
+

@@ -1,0 +1,7 @@
+# 测试与临时产物
+.testhome/
+*.bak.*
+.DS_Store
+
+# 不纳入版本库的本地覆盖
+config/fastfetch/*.local.jsonc

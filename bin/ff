@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# ff — 每次运行换一张立绘图，然后调用 fastfetch
+#
+# 与 fastfetch-random-wife.sh 的区别：
+#   - 不传 --logo，图片由 ~/.config/fastfetch/config.jsonc 的 logo 段渲染
+#     （这样 width / type 等设置才真正生效，比例不会被命令行参数打乱）
+#   - 每次运行都换一张，库存不足时自动补货
+#
+# 用法：ff [fastfetch 参数]
+
+set -uo pipefail
+
+DIR="${FF_CACHE_DIR:-$HOME/.cache/fastfetch_waifu}"
+MIN_STOCK="${FF_MIN_STOCK:-5}"     # 库存低于此数就补货
+DL_TIMEOUT="${FF_TIMEOUT:-25}"     # 单张下载超时（秒）
+
+mkdir -p "$DIR"
+
+# 图源：接口地址|jq 取值路径（按可达性排序，国内 nekos.best 最稳）
+SOURCES=(
+  "https://nekos.best/api/v2/waifu|.results[0].url"
+  "https://api.waifu.im/search?included_tags=waifu&is_nsfw=false|.images[0].url"
+  "https://api.waifu.pics/sfw/waifu|.url"
+)
+
+download_one() {
+    local entry src jqpath url out
+    for entry in "${SOURCES[@]}"; do
+        src="${entry%%|*}"
+        jqpath="${entry##*|}"
+
+        url=$(curl -s --connect-timeout 5 --max-time 12 "$src" 2>/dev/null \
+              | jq -r "$jqpath // empty" 2>/dev/null)
+        [[ "$url" == http* ]] || continue
+
+        out="$DIR/waifu_$(date +%s%N).jpg"
+        if curl -sL --connect-timeout 5 --max-time "$DL_TIMEOUT" -o "$out" "$url" 2>/dev/null \
+           && [ -s "$out" ] \
+           && file --mime-type -b "$out" 2>/dev/null | grep -q '^image/'; then
+            return 0
+        fi
+        rm -f "$out"
+    done
+    return 1
+}
+
+# 1) 补货
+stock=$(find "$DIR" -maxdepth 1 -name 'waifu_*.jpg' 2>/dev/null | wc -l)
+need=$(( MIN_STOCK - stock ))
+if [ "$need" -gt 0 ]; then
+    for _ in $(seq "$need"); do
+        download_one || break
+    done
+fi
+
+# 2) 随机挑一张落成 current.jpg（配置里的 logo 读这个固定路径）
+picked=$(find "$DIR" -maxdepth 1 -name 'waifu_*.jpg' 2>/dev/null | shuf -n1)
+if [ -n "$picked" ]; then
+    cp -f "$picked" "$DIR/current.jpg"
+else
+    printf 'ff: 没拿到图（网络或图源不可用），先显示默认 logo\n' >&2
+fi
+
+# 3) 交给 fastfetch 渲染
+exec fastfetch "$@"
