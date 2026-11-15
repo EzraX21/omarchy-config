@@ -3,13 +3,11 @@
 把 Omarchy 桌面上「好看的那一套」整理成可复现、可回滚的项目：fastfetch 信息面板（带随机立绘 logo）、
 终端/应用的全局字体，以及它们背后所有的坑与验证记录。
 
-[![check](https://github.com/OWNER/omarchy-config/actions/workflows/check.yml/badge.svg)](https://github.com/OWNER/omarchy-config/actions/workflows/check.yml)
+[![check](https://github.com/EzraX21/omarchy-config/actions/workflows/check.yml/badge.svg)](https://github.com/EzraX21/omarchy-config/actions/workflows/check.yml)
 ![platform](https://img.shields.io/badge/platform-Omarchy%20%7C%20Arch-1793d1)
 ![shell](https://img.shields.io/badge/shell-bash%205-4eaa25)
 ![smoke](https://img.shields.io/badge/smoke-25%20assertions-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT%20%2B%20AGPL--3.0-blue)
-
-<!-- 推送后把上面所有 OWNER 换成你的 GitHub 用户名（或组织名） -->
 
 
 > 面向 **Omarchy（Arch + Hyprland）** 的桌面级配置，不是系统安装脚本。
@@ -197,7 +195,7 @@ CI（`.github/workflows/check.yml`）跑四件事：`bash -n` 全量、`shellche
 
 ## 文档
 
-- [`docs/GOTCHAS.md`](docs/GOTCHAS.md) —— 15 条实测踩坑：`logo.type` 语义、`preserveAspectRatio` 只支持 iTerm、
+- [`docs/GOTCHAS.md`](docs/GOTCHAS.md) —— 16 条实测踩坑：`logo.type` 语义、`preserveAspectRatio` 只支持 iTerm、
   `--pipe` 忽略尺寸、图源可达性、`omarchy font set` 覆写 fonts.conf …
 - [`docs/SHORIN-ANALYSIS.md`](docs/SHORIN-ANALYSIS.md) —— 对 `curl -L shorin.xyz/archsetup | bash` 那套一键脚本的完整审计
   （本项目的 fastfetch 素材与部分认知来自该审计）。

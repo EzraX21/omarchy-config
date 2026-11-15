@@ -268,7 +268,8 @@ while [ $# -gt 0 ]; do
     case "$1" in
         all|fastfetch|ff|font|status|uninstall) CMD="$1" ;;
         help|-h|--help)
-            sed -n '3,22p' "$0" | sed 's/^# \{0,1\}//'
+            awk 'NR>1 && /^#/ { sub(/^# ?/, ""); print; next } NR>1 { exit }' "$0" \
+                | grep -vE '^=+$'
             exit 0 ;;
         --profile)  PROFILE="${2:?--profile 需要参数}"; shift ;;
         --with-font) WITH_FONT=1 ;;

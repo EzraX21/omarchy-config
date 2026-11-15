@@ -22,7 +22,7 @@
 - **`tests/smoke.sh`**：隔离 `HOME` 的端到端自测，25 项断言。
 - **`tests/validate-configs.py`**：JSONC 容错解析器，逐个报告 `logo.type` 与模块数。
 - **CI**：`.github/workflows/check.yml` 四个 job —— `bash -n`、`shellcheck -S warning`、配置校验、smoke。
-- **文档**：`docs/GOTCHAS.md`（15 条实测踩坑）、`docs/SHORIN-ANALYSIS.md`（一键脚本审计）、
+- **文档**：`docs/GOTCHAS.md`（16 条实测踩坑）、`docs/SHORIN-ANALYSIS.md`（一键脚本审计）、
   `THIRD_PARTY.md`（来源与许可）、`CONTRIBUTING.md`、本更新日志。
 
 ### 修复
@@ -40,5 +40,5 @@
 - `shellcheck` job 未能在作者机器上本地验证（无本地 shellcheck），首次 CI 可能出现零星 warning。
 - 截图为纯文本渲染（`--pipe`），图形 logo 无法在文本中体现。
 
-[未发布]: https://github.com/OWNER/omarchy-config/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/OWNER/omarchy-config/releases/tag/v0.1.0
+[未发布]: https://github.com/EzraX21/omarchy-config/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/EzraX21/omarchy-config/releases/tag/v0.1.0

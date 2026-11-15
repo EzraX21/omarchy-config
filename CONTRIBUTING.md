@@ -93,7 +93,7 @@ git push -u origin main
 
 推完两件小事：
 
-1. **替换徽章里的 `OWNER`** —— `README.md` 顶部与 `CHANGELOG.md` 末尾的链接都要改；
+1. 徽章与 CHANGELOG 里的仓库链接已指向 `EzraX21/omarchy-config`，**fork 或改名后记得同步**；
 2. 在仓库 Settings → Topics 里填：
    `omarchy` `archlinux` `fastfetch` `dotfiles` `hyprland` `maple-font`
 
