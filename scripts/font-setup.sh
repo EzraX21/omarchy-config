@@ -56,9 +56,13 @@ fi
 # 2. 探测真实 family 名（不硬编码）
 # ------------------------------------------------------------------------------
 say "2/6 探测字体家族名"
-FAMILY=$(fc-list : family 2>/dev/null | tr ',' '\n' \
-    | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
-    | grep -i '^Maple Mono' | sort -u | head -1 || true)
+if [ -n "${MAPLE_FAMILY:-}" ]; then
+    FAMILY="$MAPLE_FAMILY"            # 测试/CI 用：跳过探测
+else
+    FAMILY=$(fc-list : family 2>/dev/null | tr ',' '\n' \
+        | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+        | grep -i '^Maple Mono' | sort -u | head -1 || true)
+fi
 
 if [ -z "${FAMILY:-}" ]; then
     if [ "$DRY_RUN" -eq 1 ]; then

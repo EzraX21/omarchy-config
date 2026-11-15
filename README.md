@@ -125,6 +125,17 @@ dconf (gsettings)                          ← GTK 字体键
 - 字体：单独确认。删 `fonts.conf`、把 `omarchy font set` 切回 JetBrainsMono、gsettings 回 Adwaita。
   **字体包本身不删除**（`pacman -Rns maplemono-nf-cn` 需自己执行）。
 
+## 自测与 CI
+
+```bash
+python3 tests/validate-configs.py config   # 所有 .jsonc 可解析（含 logo.type 提示）
+bash tests/smoke.sh                        # 隔离 HOME 跑完整流程，25 项断言
+```
+
+`smoke.sh` 用临时 `HOME` + stub 掉的 `omarchy`/`gsettings`/`fc-*`，**不碰真实 `~/.config`**。
+CI（`.github/workflows/check.yml`）跑四件事：`bash -n` 全量、`shellcheck -S warning`、
+配置解析、以及 `tests/smoke.sh`。
+
 ## 文档
 
 - [`docs/GOTCHAS.md`](docs/GOTCHAS.md) —— 15 条实测踩坑：`logo.type` 语义、`preserveAspectRatio` 只支持 iTerm、
@@ -132,6 +143,7 @@ dconf (gsettings)                          ← GTK 字体键
 - [`docs/SHORIN-ANALYSIS.md`](docs/SHORIN-ANALYSIS.md) —— 对 `curl -L shorin.xyz/archsetup | bash` 那套一键脚本的完整审计
   （本项目的 fastfetch 素材与部分认知来自该审计）。
 - [`THIRD_PARTY.md`](THIRD_PARTY.md) —— 来源、许可与修改点。
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 加新布局的步骤、脚本约定、许可注意。
 
 ## 许可
 

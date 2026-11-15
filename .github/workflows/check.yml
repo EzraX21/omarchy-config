@@ -1,0 +1,60 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    name: bash 语法
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: bash -n 全量检查
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            if bash -n "$f"; then
+              echo "ok   $f"
+            else
+              echo "FAIL $f"
+              fail=1
+            fi
+          done < <(find . -name '*.sh' -not -path './.git/*' | sort)
+          exit "$fail"
+
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 静态分析（warning 及以上视为失败）
+        run: |
+          shellcheck --version
+          shellcheck --severity=warning --color=always \
+            install.sh bin/ff scripts/*.sh tests/smoke.sh
+
+  configs:
+    name: 配置校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .jsonc 可解析性
+        run: python3 tests/validate-configs.py config
+
+  smoke:
+    name: 隔离环境自测
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 跑完整 install / profile / font / uninstall 流程
+        run: bash tests/smoke.sh

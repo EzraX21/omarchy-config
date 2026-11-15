@@ -80,7 +80,8 @@ profile_path() {
 backup_file() {
     local f="$1"
     [ -e "$f" ] || return 0
-    local bak="$f.bak.$(date +%Y%m%d%H%M%S)"
+    local bak
+    bak="$f.bak.$(date +%Y%m%d%H%M%S)"
     if [ "$DRY_RUN" -eq 1 ]; then
         info "[dry-run] 备份 $(basename "$f") → $(basename "$bak")"
     else

@@ -47,11 +47,10 @@ download_one() {
 # 1) 补货
 stock=$(find "$DIR" -maxdepth 1 -name 'waifu_*.jpg' 2>/dev/null | wc -l)
 need=$(( MIN_STOCK - stock ))
-if [ "$need" -gt 0 ]; then
-    for _ in $(seq "$need"); do
-        download_one || break
-    done
-fi
+while [ "$need" -gt 0 ]; do
+    download_one || break
+    need=$(( need - 1 ))
+done
 
 # 2) 随机挑一张落成 current.jpg（配置里的 logo 读这个固定路径）
 picked=$(find "$DIR" -maxdepth 1 -name 'waifu_*.jpg' 2>/dev/null | shuf -n1)

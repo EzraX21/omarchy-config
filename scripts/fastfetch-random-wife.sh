@@ -60,7 +60,6 @@ mkdir -p "$USED_DIR"
 # --- 2. 核心函数 ---
 
 get_random_url() {
-    local TIMEOUT="--connect-timeout 5 --max-time 15"
     local urls=()
 
     if [ "$NSFW_MODE" = true ]; then
@@ -83,7 +82,7 @@ get_random_url() {
     # 原版是 RANDOM%3 随机选一个，抽到不可达的源就整次空手而归。
     local u json out
     for u in "${urls[@]}"; do
-        json=$(curl -s $TIMEOUT "$u" 2>/dev/null) || continue
+        json=$(curl -s --connect-timeout 5 --max-time 15 "$u" 2>/dev/null) || continue
         [ -n "$json" ] || continue
         # 兼容三种返回结构：images[0].url / results[0].url / url
         out=$(printf '%s' "$json" | jq -r '.images[0].url // .results[0].url // .url // empty' 2>/dev/null)
