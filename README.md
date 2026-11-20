@@ -20,11 +20,38 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 快速开始
+## 一键安装
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/EzraX21/omarchy-config/main/bootstrap.sh | bash
+```
+
+带参数（会透传给 `install.sh`）：
+
+```bash
+# 只看会改哪些文件，不写盘
+curl -fsSL https://raw.githubusercontent.com/EzraX21/omarchy-config/main/bootstrap.sh | bash -s -- --dry-run
+
+# 顺带换 fastfetch 布局
+curl -fsSL https://raw.githubusercontent.com/EzraX21/omarchy-config/main/bootstrap.sh | bash -s -- --profile shorin
+
+# 固定版本（默认跟随 main）
+curl -fsSL https://raw.githubusercontent.com/EzraX21/omarchy-config/main/bootstrap.sh | OMARCHY_CONFIG_REF=v0.1.1 bash
+```
+
+`bootstrap.sh` 只做三件事：下载对应版本的 tarball 到临时目录 → 执行 `install.sh` → 删掉临时目录。
+不需要 root（`font` 子命令除外，它会调 pacman），写入 `~/.config` 之前都会自动备份。
+想先看清楚再跑：直接打开 [`bootstrap.sh`](bootstrap.sh)，它不到 50 行。
+
+> 只想要配置、不想装 `ff`、不想改 `.bashrc`：别用这个一键命令，`git clone` 之后跑 `./apply-all.sh`（见下）。
+
+## 手动安装
+
+```bash
+git clone https://github.com/EzraX21/omarchy-config.git
 cd omarchy-config
-./apply-all.sh               # 只替换 4 层配置（最直接）
+
+./apply-all.sh               # 只替换 4 层配置（最直接，不装 ff）
 ./install.sh                 # 4 层 + ff 包装器 + shell 集成
 ./install.sh font            # 可选：换字体（需要 sudo）
 ./install.sh status          # 看每一层装没装

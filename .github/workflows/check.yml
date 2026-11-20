@@ -39,7 +39,7 @@ jobs:
         run: |
           shellcheck --version
           shellcheck --severity=warning --color=always \
-            install.sh apply-all.sh bin/ff scripts/*.sh 0*/apply.sh tests/smoke.sh
+            install.sh apply-all.sh bootstrap.sh bin/ff scripts/*.sh 0*/apply.sh tests/smoke.sh
 
   configs:
     name: 配置校验

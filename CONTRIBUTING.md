@@ -28,6 +28,7 @@ bash tests/smoke.sh                        # 隔离 HOME 里跑完整流程
 | `03-vscode/` | `settings.json` 片段（会被深合并） | 只放要合并的键 |
 | `04-noctalia/` | matugen 模板 + 注册片段 | 属于 Noctalia，不要塞进 fastfetch |
 | `bin/ff` | 运行时工具（每次换图） | 不放配置 |
+| `bootstrap.sh` | 一键安装入口（下载 tarball → 执行 install.sh） | 默认跟随 `main`，别写死版本 |
 | `scripts/` | 较重的独立流程（字体、上游脚本） | 可单独执行并有 `--help` |
 | `tests/` | 自测与校验 | CI 跑的就是这两个 |
 
