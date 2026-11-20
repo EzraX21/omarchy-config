@@ -17,7 +17,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 PKG="${MAPLE_PKG:-maplemono-nf-cn}"
-FALLBACK_CJK="${MAPLE_FALLBACK_CJK:-Noto Sans CJK SC}"
 DEFAULT_FAMILY="Maple Mono NF CN"
 DRY_RUN=0
 DO_GTK=1
