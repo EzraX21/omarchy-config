@@ -3,7 +3,7 @@
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [未发布]
+## [0.1.1] - 2026-11-20
 
 ### 变更
 
@@ -52,5 +52,6 @@
 - `shellcheck` job 未能在作者机器上本地验证（无本地 shellcheck），首次 CI 可能出现零星 warning。
 - 截图为纯文本渲染（`--pipe`），图形 logo 无法在文本中体现。
 
-[未发布]: https://github.com/EzraX21/omarchy-config/compare/v0.1.0...HEAD
+[未发布]: https://github.com/EzraX21/omarchy-config/compare/v0.1.1...HEAD
 [0.1.0]: https://github.com/EzraX21/omarchy-config/releases/tag/v0.1.0
+[0.1.1]: https://github.com/EzraX21/omarchy-config/releases/tag/v0.1.1
