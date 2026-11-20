@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# font-setup.sh — 把 Omarchy 全系统字体换成 Maple Mono NF（终端 + 所有应用）
+# font-setup.sh — 装 Maple Mono NF，并把系统字体切到它
 #
-# 用法：scripts/font-setup.sh [--dry-run] [--package PKG] [--no-gtk]
-# 说明：字体包系统级安装（/usr/share/fonts，需要 sudo）；其余改动只动当前用户。
+# 流程：
+#   1) 安装字体包（omarchy 仓库的 maplemono-nf-cn，系统级 /usr/share/fonts）
+#   2) 探测真实 family 名
+#   3) omarchy font set（foot / alacritty / kitty / ghostty 四个终端）
+#   4) 调用 02-fontconfig 层：写 ~/.config/fontconfig/fonts.conf
+#   5) 调用 03-vscode 层：合并 VS Code 字体键
+#   6) gsettings：GTK / GNOME 系应用字体
+#
+# 用法: scripts/font-setup.sh [--dry-run] [--package PKG] [--no-gtk]
 # ==============================================================================
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TPL="$ROOT/config/fontconfig/fonts.conf.tpl"
 
 PKG="${MAPLE_PKG:-maplemono-nf-cn}"
 FALLBACK_CJK="${MAPLE_FALLBACK_CJK:-Noto Sans CJK SC}"
+DEFAULT_FAMILY="Maple Mono NF CN"
 DRY_RUN=0
 DO_GTK=1
 
@@ -20,7 +27,7 @@ while [ $# -gt 0 ]; do
         --dry-run) DRY_RUN=1 ;;
         --package) PKG="${2:?}"; shift ;;
         --no-gtk)  DO_GTK=0 ;;
-        -h|--help) sed -n '2,8p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) printf '未知参数: %s\n' "$1" >&2; exit 1 ;;
     esac
     shift
@@ -37,10 +44,7 @@ run() {
 }
 
 CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-FONTS_CONF="$CONFIG_HOME/fontconfig/fonts.conf"
 
-# ------------------------------------------------------------------------------
-# 1. 安装字体包
 # ------------------------------------------------------------------------------
 say "1/6 检查 Maple 字体"
 if fc-list 2>/dev/null | grep -qi 'Maple Mono'; then
@@ -53,11 +57,9 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 2. 探测真实 family 名（不硬编码）
-# ------------------------------------------------------------------------------
 say "2/6 探测字体家族名"
 if [ -n "${MAPLE_FAMILY:-}" ]; then
-    FAMILY="$MAPLE_FAMILY"            # 测试/CI 用：跳过探测
+    FAMILY="$MAPLE_FAMILY"
 else
     FAMILY=$(fc-list : family 2>/dev/null | tr ',' '\n' \
         | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
@@ -66,7 +68,7 @@ fi
 
 if [ -z "${FAMILY:-}" ]; then
     if [ "$DRY_RUN" -eq 1 ]; then
-        FAMILY="Maple Mono NF CN"
+        FAMILY="$DEFAULT_FAMILY"
         printf '  [dry-run] 字体未安装，假定 family 为 %s\n' "$FAMILY"
     else
         die "装了包但 fc-list 找不到 Maple Mono，请检查 $PKG 内容"
@@ -74,9 +76,6 @@ if [ -z "${FAMILY:-}" ]; then
 fi
 printf '将使用 family: \033[1;33m%s\033[0m\n' "$FAMILY"
 
-# ------------------------------------------------------------------------------
-# 3. omarchy 官方设置：终端 + monospace
-#    注意：它会覆写 fonts.conf，必须在第 4 步之前跑
 # ------------------------------------------------------------------------------
 say "3/6 omarchy font set（终端字体）"
 if command -v omarchy >/dev/null 2>&1; then
@@ -86,66 +85,28 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 4. 泛用族全部指向 Maple —— 这才是"所有应用"生效的关键
-# ------------------------------------------------------------------------------
-say "4/6 写入 $FONTS_CONF"
-run mkdir -p "$(dirname "$FONTS_CONF")"
-if [ "$DRY_RUN" -eq 1 ]; then
-    printf '  [dry-run] 用 %s 渲染模板 → %s\n' "$(basename "$TPL")" "$FONTS_CONF"
-else
-    sed -e "s|@FAMILY@|$FAMILY|g" -e "s|@FALLBACK_CJK@|$FALLBACK_CJK|g" "$TPL" > "$FONTS_CONF"
-    fc-cache -f >/dev/null 2>&1 || true
-fi
+say "4/6 02-fontconfig 层"
+fc_args=()
+if [ "$DRY_RUN" -eq 1 ]; then fc_args+=(--dry-run); fi
+if [ "$FAMILY" != "$DEFAULT_FAMILY" ]; then fc_args+=(--family "$FAMILY"); fi
+bash "$ROOT/02-fontconfig/apply.sh" "${fc_args[@]}"
 
 # ------------------------------------------------------------------------------
-# 5. GTK / GNOME 系应用
+say "5/6 03-vscode 层"
+vs_args=()
+if [ "$DRY_RUN" -eq 1 ]; then vs_args+=(--dry-run); fi
+bash "$ROOT/03-vscode/apply.sh" "${vs_args[@]}" || echo "  跳过 VS Code（未安装或设置非纯 JSON）"
+
 # ------------------------------------------------------------------------------
 if [ "$DO_GTK" -eq 1 ] && command -v gsettings >/dev/null 2>&1; then
-    say "5/6 gsettings 字体"
+    say "6/6 gsettings 字体"
     run gsettings set org.gnome.desktop.interface font-name           "$FAMILY 11"
     run gsettings set org.gnome.desktop.interface document-font-name  "$FAMILY 12"
     run gsettings set org.gnome.desktop.interface monospace-font-name "$FAMILY 11"
 else
-    say "5/6 跳过 GTK（--no-gtk 或无 gsettings）"
+    say "6/6 跳过 gsettings（--no-gtk 或无 gsettings）"
 fi
 
-# ------------------------------------------------------------------------------
-# 6. VS Code（自己的字体设置，不吃 fontconfig）
-# ------------------------------------------------------------------------------
-VSCODE_SETTINGS="$CONFIG_HOME/Code/User/settings.json"
-VSCODE_TPL="$ROOT/config/vscode/settings-font.jsonc"
-if [ -f "$VSCODE_SETTINGS" ] && [ -f "$VSCODE_TPL" ] && [ "$DRY_RUN" -eq 0 ]; then
-    say "6/6 VS Code 字体（模板驱动）"
-    python3 - "$VSCODE_SETTINGS" "$VSCODE_TPL" "$FAMILY" <<'PY' || true
-import json, pathlib, sys
-
-settings_path, tpl_path, family = sys.argv[1], sys.argv[2], sys.argv[3]
-settings = json.loads(pathlib.Path(settings_path).read_text(encoding="utf-8"))
-fragment = json.loads(
-    pathlib.Path(tpl_path).read_text(encoding="utf-8").replace("@FAMILY@", family)
-)
-
-
-def deep_merge(dst, src):
-    for key, val in src.items():
-        if isinstance(val, dict) and isinstance(dst.get(key), dict):
-            deep_merge(dst[key], val)
-        else:
-            dst[key] = val
-
-
-deep_merge(settings, fragment)
-pathlib.Path(settings_path).write_text(
-    json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-)
-print("  已按 config/vscode/settings-font.jsonc 写入字体设置")
-PY
-else
-    say "6/6 跳过 VS Code"
-fi
-
-# ------------------------------------------------------------------------------
-# 验证
 # ------------------------------------------------------------------------------
 if [ "$DRY_RUN" -eq 0 ]; then
     say "验证"

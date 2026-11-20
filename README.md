@@ -6,7 +6,7 @@
 [![check](https://github.com/EzraX21/omarchy-config/actions/workflows/check.yml/badge.svg)](https://github.com/EzraX21/omarchy-config/actions/workflows/check.yml)
 ![platform](https://img.shields.io/badge/platform-Omarchy%20%7C%20Arch-1793d1)
 ![shell](https://img.shields.io/badge/shell-bash%205-4eaa25)
-![smoke](https://img.shields.io/badge/smoke-27%20assertions-brightgreen)
+![smoke](https://img.shields.io/badge/smoke-35%20assertions-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT%20%2B%20AGPL--3.0-blue)
 
 
@@ -24,9 +24,10 @@
 
 ```bash
 cd omarchy-config
-./install.sh                 # 装 fastfetch 配置 + ff 包装器
+./apply-all.sh               # 只替换 4 层配置（最直接）
+./install.sh                 # 4 层 + ff 包装器 + shell 集成
 ./install.sh font            # 可选：换字体（需要 sudo）
-./install.sh status          # 看装了什么
+./install.sh status          # 看每一层装没装
 ```
 
 装完新开一个终端：
@@ -85,32 +86,48 @@ fastfetch        # 第一次会自动补 5 张图，之后每次换一张
 > 图形 logo 也只能退化成方块。完整效果运行 `./install.sh` 后自己看。
 > 想补真截图：在 foot 里跑 `fastfetch`，用 `omarchy capture screenshot` 存到 `docs/images/` 即可。
 
-## 配置按软件分开
+## 4 层结构
 
-`config/` 下每个目录只服务一个软件，互不混放：
+每层 = **一个可直接替换的配置文件** + **一个替换脚本**；根目录再给一个总脚本。
 
-| 目录 | 属于谁 | 内容 | 安装到 |
+| 层 | 配置文件（可直接 `cp` 覆盖） | 替换脚本 | 目标 |
 |---|---|---|---|
-| `config/fastfetch/` | fastfetch | 7 套布局（`omarchy-layout` / `shorin-tree` / `plain` + `variants/`） | `~/.config/fastfetch/config.jsonc` |
-| `config/noctalia/` | Noctalia | matugen 模板 + `user-templates.toml` 注册片段 | 手动放到 `~/.config/noctalia/`（可选） |
-| `config/fontconfig/` | fontconfig | `fonts.conf.tpl`（泛用族别名） | `~/.config/fontconfig/fonts.conf` |
-| `config/vscode/` | VS Code | `settings-font.jsonc`（字体键片段） | 深合并进 `~/.config/Code/User/settings.json` |
+| 01 fastfetch | `01-fastfetch/config.jsonc`（7 套布局的默认；备选在 `profiles/`） | `01-fastfetch/apply.sh` | `~/.config/fastfetch/config.jsonc` |
+| 02 fontconfig | `02-fontconfig/fonts.conf` | `02-fontconfig/apply.sh` | `~/.config/fontconfig/fonts.conf` |
+| 03 vscode | `03-vscode/settings.json` | `03-vscode/apply.sh` | `~/.config/Code/User/settings.json` |
+| 04 noctalia | `04-noctalia/templates/fastfetch-config.jsonc`、`04-noctalia/user-templates.toml` | `04-noctalia/apply.sh` | `~/.config/noctalia/…` |
 
-`install.sh` 只自动装 fastfetch 与 fontconfig；`noctalia` 与 `vscode` 是素材/片段，由对应流程或手动取用。
+```bash
+./apply-all.sh                 # 4 层依次替换
+./apply-all.sh --dry-run       # 只看会动哪些文件
+./apply-all.sh --profile shorin  # 01 层换布局，其余层不变
+```
+
+四层的配置**没有任何占位符**，都是成品：想手动替换就 `cp 01-fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc`。
+脚本额外做的事只有三件——**备份、复制、以及 VS Code 的深合并**：
+
+- 备份只做一次：目标里已有 `.bak.*`、或目标内容与我们写入的完全一致时，不再备份；
+- 03 层默认「合并」而不是覆盖，保留你 `settings.json` 里的主题等其它键（`--replace` 才是整体替换）；
+- 04 层只在你确实装了 Noctalia（存在 `~/.config/noctalia`）时写入，否则跳过。
 
 ## 命令一览
 
 | 命令 | 作用 |
 |---|---|
-| `./install.sh` / `all` | 安装 fastfetch 配置 + `ff` 包装器 + shell 集成 |
-| `./install.sh fastfetch` | 只装 fastfetch 配置（覆盖前自动备份） |
+| `./apply-all.sh` | 依次替换 01→02→03→04 四层（只动配置，不装 ff） |
+| `./install.sh` / `all` | 四层 + `ff` 包装器 + `.bashrc` 集成 |
+| `./install.sh fastfetch` | 只替换 01 层（可加 `--profile`） |
+| `./install.sh fontconfig` | 只替换 02 层 |
+| `./install.sh vscode` | 只应用 03 层 |
+| `./install.sh noctalia` | 只替换 04 层 |
 | `./install.sh ff` | 只装 `~/.local/bin/ff` 与 `.bashrc` 集成 |
 | `./install.sh font` | 装 Maple Mono NF 并全局应用（`omarchy pkg add`，需 sudo） |
-| `./install.sh status` | 打印当前安装状态（配置/profile/ff/字体/图片缓存） |
+| `./install.sh status` | 打印每一层的状态 |
 | `./install.sh uninstall` | 还原：优先回滚备份，其次删除；字体单独确认 |
 | `./install.sh help` | 用法 |
 
 通用选项：`--profile <name>`、`--dry-run`、`--yes`、`--with-font`。
+单层脚本也支持 `--dry-run`（02 还有 `--family`，03 还有 `--family` / `--replace`）。
 
 ## fastfetch 布局方案
 
@@ -153,14 +170,12 @@ scripts/fastfetch-random-wife.sh --nsfw     # NSFW 图源（缓存目录不同�
 1. `omarchy pkg add maplemono-nf-cn`（Omarchy 仓库，NF = Nerd Font 图标，CN = 含中文）；
 2. 动态探测真实 family 名；
 3. `omarchy font set "<family>"` → foot / alacritty / kitty / ghostty + `monospace`；
-4. 用 `config/fontconfig/fonts.conf.tpl` 生成 `~/.config/fontconfig/fonts.conf`，
-   把 `sans-serif` / `serif` / `monospace` 全部指向 Maple，并给中文回退 `Noto Sans CJK SC`
-   （`system-ui` 无法经 fontconfig 重映射，实测无效，故不处理）；
-5. `gsettings` 三个 GTK 字体键；
-6. VS Code：把 `config/vscode/settings-font.jsonc` 渲染后**深合并**进 `~/.config/Code/User/settings.json`
-   （只覆盖字体相关的键，其它设置保留）。
+4. 调 `02-fontconfig/apply.sh` 写 `~/.config/fontconfig/fonts.conf`（sans/serif/monospace 全指向 Maple，
+   中文回退 `Noto Sans CJK SC`；`system-ui` 无法经 fontconfig 重映射，实测无效，故不处理）；
+5. 调 `03-vscode/apply.sh` **深合并**字体键进 `~/.config/Code/User/settings.json`（其它设置保留）；
+6. `gsettings` 三个 GTK 字体键。
 
-**顺序不能反**：`omarchy font set` 会整份覆写 `fonts.conf`，所以模板必须在它之后写。
+**顺序不能反**：`omarchy font set` 会整份覆写 `fonts.conf`，所以 02 层必须在它之后执行。
 **代价**：Maple Mono 是等宽字体，全局当 sans-serif 用会让 GUI 也是等宽观感。
 只想改代码/终端字体：`scripts/font-setup.sh --no-gtk` 并跳过第 4 步。
 
@@ -169,20 +184,23 @@ scripts/fastfetch-random-wife.sh --nsfw     # NSFW 图源（缓存目录不同�
 安装（全部可回滚）：
 
 ```
-~/.config/fastfetch/config.jsonc           ← 覆盖前备份为 config.jsonc.bak.<时间戳>
+~/.config/fastfetch/config.jsonc            ← 01 层；覆盖前备份为 *.bak.<时间戳>
 ~/.config/fastfetch/.omarchy-config-profile ← 记录用的是哪个 profile
-~/.local/bin/ff                            ← 可执行
-~/.bashrc                                  ← 追加一段带 >>> omarchy-config >>> 标记的块
+~/.config/fontconfig/fonts.conf             ← 02 层
+~/.config/Code/User/settings.json           ← 03 层（默认合并）
+~/.config/noctalia/…                        ← 04 层（装了 Noctalia 才有）
+~/.local/bin/ff                             ← 可执行
+~/.bashrc                                   ← 带 >>> omarchy-config >>> 标记的块
 ```
 
 字体（`./install.sh font`）：
 
 ```
 /usr/share/fonts/…                         ← 由 pacman 包安装（系统级）
-~/.config/fontconfig/fonts.conf            ← 生成
+~/.config/fontconfig/fonts.conf            ← 02 层
 ~/.config/{foot,alacritty,kitty,ghostty}/   ← omarchy font set 写字体行
 dconf (gsettings)                          ← GTK 字体键
-~/.config/Code/User/settings.json          ← 深合并字体键（仅当该文件是纯 JSON）
+~/.config/Code/User/settings.json          ← 03 层深合并（仅当该文件是纯 JSON）
 ```
 
 ## 卸载
@@ -191,7 +209,7 @@ dconf (gsettings)                          ← GTK 字体键
 ./install.sh uninstall
 ```
 
-- fastfetch 配置：有新备份就回滚，没有就删除（删掉后系统 `/etc` 配置自动接管）；
+- 四层配置：有新备份就回滚，没有就删除（删掉后系统 `/etc` 配置自动接管）；
 - `ff` 与 `.bashrc` 集成块：删除；
 - 字体：单独确认。删 `fonts.conf`、把 `omarchy font set` 切回 JetBrainsMono、gsettings 回 Adwaita。
   **字体包本身不删除**（`pacman -Rns maplemono-nf-cn` 需自己执行）。
@@ -199,8 +217,8 @@ dconf (gsettings)                          ← GTK 字体键
 ## 自测与 CI
 
 ```bash
-python3 tests/validate-configs.py config   # 所有 .jsonc 可解析（含 logo.type 提示）
-bash tests/smoke.sh                        # 隔离 HOME 跑完整流程，27 项断言
+python3 tests/validate-configs.py          # 仓库内所有 .json/.jsonc 可解析
+bash tests/smoke.sh                        # 隔离 HOME 跑完整流程，35 项断言
 ```
 
 `smoke.sh` 用临时 `HOME` + stub 掉的 `omarchy`/`gsettings`/`fc-*`，**不碰真实 `~/.config`**。
@@ -220,5 +238,5 @@ CI（`.github/workflows/check.yml`）跑四件事：`bash -n` 全量、`shellche
 ## 许可
 
 本项目自身脚本（`install.sh`、`bin/ff`、`scripts/font-setup.sh`）为 MIT；
-`config/fastfetch/`、`config/noctalia/` 下衍生自 shorin-arch-setup 的配置与 `scripts/fastfetch-random-wife.sh` 为 **AGPL-3.0-or-later**。
+`01-fastfetch/`、`04-noctalia/` 下衍生自 shorin-arch-setup 的配置与 `scripts/fastfetch-random-wife.sh` 为 **AGPL-3.0-or-later**。
 分发时请以更严格者为准，详见 [THIRD_PARTY.md](THIRD_PARTY.md)。

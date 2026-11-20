@@ -1,0 +1,9 @@
+{
+  "editor": {
+    "fontFamily": "'Maple Mono NF CN', 'Noto Sans Mono CJK SC', monospace",
+    "fontLigatures": true
+  },
+  "terminal.integrated": {
+    "fontFamily": "'Maple Mono NF CN', 'Noto Sans Mono CJK SC', monospace"
+  }
+}

@@ -7,10 +7,15 @@
 
 ### 变更
 
-- **`config/` 按软件拆分**：Noctalia 的 matugen 模板与注册片段从 `config/fastfetch/` 移到 `config/noctalia/`；
-  VS Code 字体设置从 `font-setup.sh` 内联逻辑改为模板 `config/vscode/settings-font.jsonc.tpl`（深合并，保留既有设置）。
-- fastfetch 布局文件名去掉冗余的 `config.` 前缀：`config.omarchy-layout.jsonc` → `omarchy-layout.jsonc`（其余同理）。
-- `tests/smoke.sh` 增至 27 项断言：新增 VS Code 字体模板合并、以及"不覆盖已有设置"两条。
+- **配置改成 4 层结构**，每层 = 一个可直接替换的配置文件 + 一个替换脚本：
+  `01-fastfetch/`、`02-fontconfig/`、`03-vscode/`、`04-noctalia/`。
+- 根目录新增 `apply-all.sh`：按顺序替换四层；`install.sh` 保留为上层封装（四层 + `ff` + `.bashrc`）。
+- 所有层的配置改为**无占位符的成品**：02 的 `fonts.conf` 写死 `Maple Mono NF CN`，
+  03 的 `settings.json` 写死字体栈，换字体走 `--family` 参数而不是模板替换。
+- 备份策略：只在「目标不是我们写的内容」且「还没有历史备份」时备份一次，避免备份套备份。
+- 03 层默认**深合并**（保留 VS Code 主题等设置），`--replace` 才是整体覆盖。
+- `tests/smoke.sh` 增至 35 项断言，新增四层落盘/独立执行/uninstall 回滚等检查。
+- `tests/validate-configs.py` 改为扫描整个仓库的 `.json` 与 `.jsonc`。
 
 ## [0.1.0] - 2026-11-15
 
