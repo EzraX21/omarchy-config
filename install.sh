@@ -66,13 +66,13 @@ confirm() {
 # --- 布局映射 ------------------------------------------------------------------
 profile_path() {
     case "$1" in
-        omarchy)    echo "$ROOT/config/fastfetch/config.omarchy-layout.jsonc" ;;
-        shorin)     echo "$ROOT/config/fastfetch/config.shorin-tree.jsonc" ;;
-        plain)      echo "$ROOT/config/fastfetch/config.plain.jsonc" ;;
-        gnome)      echo "$ROOT/config/fastfetch/variants/config.gnome-kitty.jsonc" ;;
-        kde)        echo "$ROOT/config/fastfetch/variants/config.kde-pink-sixel.jsonc" ;;
-        mint)       echo "$ROOT/config/fastfetch/variants/config.minimal-mint-sixel.jsonc" ;;
-        mint-labwc) echo "$ROOT/config/fastfetch/variants/config.minimal-mint-sixel-labwc.jsonc" ;;
+        omarchy)    echo "$ROOT/config/fastfetch/omarchy-layout.jsonc" ;;
+        shorin)     echo "$ROOT/config/fastfetch/shorin-tree.jsonc" ;;
+        plain)      echo "$ROOT/config/fastfetch/plain.jsonc" ;;
+        gnome)      echo "$ROOT/config/fastfetch/variants/gnome-kitty.jsonc" ;;
+        kde)        echo "$ROOT/config/fastfetch/variants/kde-pink-sixel.jsonc" ;;
+        mint)       echo "$ROOT/config/fastfetch/variants/minimal-mint-sixel.jsonc" ;;
+        mint-labwc) echo "$ROOT/config/fastfetch/variants/minimal-mint-sixel-labwc.jsonc" ;;
         *) return 1 ;;
     esac
 }

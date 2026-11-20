@@ -16,7 +16,7 @@ bash tests/smoke.sh                        # 隔离 HOME 里跑完整流程
 ```
 
 `smoke.sh` 会建一个临时 `HOME`，把 `omarchy` / `gsettings` / `fc-*` 用 stub 替身，
-**不会碰你真实的 `~/.config`**。跑完自动清理。当前是 25 项断言。
+**不会碰你真实的 `~/.config`**。跑完自动清理。当前是 27 项断言。
 
 ## 目录职责
 
@@ -24,14 +24,16 @@ bash tests/smoke.sh                        # 隔离 HOME 里跑完整流程
 |---|---|---|
 | `install.sh` | 唯一入口，子命令分发 | 所有写操作都要能 `--dry-run` |
 | `bin/ff` | 运行时工具（每次换图） | 不放配置，配置在 `config/` |
-| `config/fastfetch/` | 布局成品，每种一个文件 | 文件名即 profile 名，见下 |
+| `config/fastfetch/` | 布局成品，每种一个文件 | 文件名去掉 `.jsonc` 即 profile 名，见下 |
+| `config/noctalia/` | Noctalia 的 matugen 模板与注册片段 | 属于 Noctalia，不要塞进 `fastfetch/` |
 | `config/fontconfig/*.tpl` | 模板，`@FAMILY@` 由脚本替换 | 不要写死字体名 |
+| `config/vscode/*.jsonc` | VS Code 设置片段，`@FAMILY@` 由脚本替换 | 只放要合并的键 |
 | `scripts/` | 较重的独立流程（字体、上游脚本） | 可单独执行并有 `--help` |
 | `tests/` | 自测与校验 | CI 跑的就是这两个 |
 
 ## 加一套新的 fastfetch 布局
 
-1. 把配置放进 `config/fastfetch/config.<名字>.jsonc`（或 `variants/`）；
+1. 把配置放进 `config/fastfetch/<名字>.jsonc`（或 `variants/`）；
 2. 在 `install.sh` 的 `profile_path()` 里加一个 `case` 分支；
 3. 更新 `README.md` 的 profile 表格；
 4. 跑 `python3 tests/validate-configs.py config` 与 `bash tests/smoke.sh`；
@@ -66,7 +68,7 @@ docs: GOTCHAS 补 system-ui 无法重映射
 本项目是 **MIT + AGPL-3.0 混合**：
 
 - `install.sh`、`bin/ff`、`scripts/font-setup.sh`、`tests/` 是 MIT；
-- `config/fastfetch/` 下衍生自 shorin-arch-setup 的配置、以及 `scripts/fastfetch-random-wife.sh` 是 **AGPL-3.0-or-later**。
+- `config/fastfetch/` 与 `config/noctalia/` 下衍生自 shorin-arch-setup 的配置、以及 `scripts/fastfetch-random-wife.sh` 是 **AGPL-3.0-or-later**。
 
 所以：
 

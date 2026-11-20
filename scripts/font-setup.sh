@@ -113,23 +113,32 @@ fi
 # 6. VS Code（自己的字体设置，不吃 fontconfig）
 # ------------------------------------------------------------------------------
 VSCODE_SETTINGS="$CONFIG_HOME/Code/User/settings.json"
-if [ -f "$VSCODE_SETTINGS" ] && [ "$DRY_RUN" -eq 0 ]; then
-    say "6/6 VS Code 字体"
-    python3 - "$VSCODE_SETTINGS" "$FAMILY" <<'PY' || true
-import json, sys, pathlib
-path, family = pathlib.Path(sys.argv[1]), sys.argv[2]
-try:
-    data = json.loads(path.read_text(encoding='utf-8'))
-except json.JSONDecodeError:
-    print("  settings.json 不是纯 JSON（可能带注释），跳过，请手动加：")
-    print(f'    "editor.fontFamily": "\'{family}\', monospace"')
-    raise SystemExit(0)
-stack = f"'{family}', 'Noto Sans Mono CJK SC', monospace"
-data.setdefault("editor", {})["fontFamily"] = stack
-data.setdefault("editor", {})["fontLigatures"] = True
-data.setdefault("terminal", {}).setdefault("integrated", {})["fontFamily"] = stack
-path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding='utf-8')
-print("  已写入 editor.fontFamily / terminal fontFamily")
+VSCODE_TPL="$ROOT/config/vscode/settings-font.jsonc"
+if [ -f "$VSCODE_SETTINGS" ] && [ -f "$VSCODE_TPL" ] && [ "$DRY_RUN" -eq 0 ]; then
+    say "6/6 VS Code 字体（模板驱动）"
+    python3 - "$VSCODE_SETTINGS" "$VSCODE_TPL" "$FAMILY" <<'PY' || true
+import json, pathlib, sys
+
+settings_path, tpl_path, family = sys.argv[1], sys.argv[2], sys.argv[3]
+settings = json.loads(pathlib.Path(settings_path).read_text(encoding="utf-8"))
+fragment = json.loads(
+    pathlib.Path(tpl_path).read_text(encoding="utf-8").replace("@FAMILY@", family)
+)
+
+
+def deep_merge(dst, src):
+    for key, val in src.items():
+        if isinstance(val, dict) and isinstance(dst.get(key), dict):
+            deep_merge(dst[key], val)
+        else:
+            dst[key] = val
+
+
+deep_merge(settings, fragment)
+pathlib.Path(settings_path).write_text(
+    json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+)
+print("  已按 config/vscode/settings-font.jsonc 写入字体设置")
 PY
 else
     say "6/6 跳过 VS Code"

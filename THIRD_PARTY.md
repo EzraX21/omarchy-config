@@ -7,11 +7,11 @@
 - 上游：<https://github.com/SHORiN-KiWATA/shorin-arch-setup>
 - 许可：GNU Affero General Public License v3.0 or later
 - 涉及文件：
-  - `config/fastfetch/config.shorin-tree.jsonc`（上游 `minimal-niri-dotfiles/.config/fastfetch/config.jsonc` 原件）
-  - `config/fastfetch/config.plain.jsonc`（同上）
+  - `config/fastfetch/shorin-tree.jsonc`（上游 `minimal-niri-dotfiles/.config/fastfetch/config.jsonc` 原件）
+  - `config/fastfetch/plain.jsonc`（同上）
   - `config/fastfetch/variants/*.jsonc`（上游 gnome / kde / minimal-niri / minimal-labwc 四个变体原件）
-  - `config/fastfetch/fastfetch-config.jsonc`（上游 Noctalia 的 matugen 模板原件）
-  - `config/fastfetch/user-templates.fastfetch.toml`（上游片段）
+  - `config/noctalia/templates/fastfetch-config.jsonc`（上游 Noctalia 的 matugen 模板原件）
+  - `config/noctalia/user-templates.fastfetch.toml`（上游片段）
   - `scripts/fastfetch-random-wife.sh`（上游 `gnome-dotfiles/.config/scripts/fastfetch-random-wife.sh`，本项目仅做三处修改，见下）
 
 对上游文件所做的修改（其余逐字节一致）：
@@ -24,7 +24,7 @@
 
 ## 衍生自 Omarchy 的默认配置
 
-- `config/fastfetch/config.omarchy-layout.jsonc` 来自系统文件 `/etc/fastfetch/config.jsonc`（Omarchy 随包提供），
+- `config/fastfetch/omarchy-layout.jsonc` 来自系统文件 `/etc/fastfetch/config.jsonc`（Omarchy 随包提供），
   仅替换了 `logo` 块（3 行）。Omarchy 的许可与条款以其项目仓库为准（<https://github.com/basecamp/omarchy>）。
 
 ## 字体：Maple Mono

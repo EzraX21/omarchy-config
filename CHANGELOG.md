@@ -5,6 +5,13 @@
 
 ## [未发布]
 
+### 变更
+
+- **`config/` 按软件拆分**：Noctalia 的 matugen 模板与注册片段从 `config/fastfetch/` 移到 `config/noctalia/`；
+  VS Code 字体设置从 `font-setup.sh` 内联逻辑改为模板 `config/vscode/settings-font.jsonc.tpl`（深合并，保留既有设置）。
+- fastfetch 布局文件名去掉冗余的 `config.` 前缀：`config.omarchy-layout.jsonc` → `omarchy-layout.jsonc`（其余同理）。
+- `tests/smoke.sh` 增至 27 项断言：新增 VS Code 字体模板合并、以及"不覆盖已有设置"两条。
+
 ## [0.1.0] - 2026-11-15
 
 首个可用版本。从「一堆散落的配置文件」整理成可安装、可回滚、可测试的项目。

@@ -62,7 +62,7 @@ assert_no_file "$CFG" "dry-run 未写入配置"
 printf '\n\033[1m3. install all\033[0m\n'
 if run "$ROOT/install.sh" all >/dev/null 2>&1; then ok "install all 退出码 0"; else bad "install all 退出码非 0"; fi
 assert_file "$CFG" "fastfetch 配置已写入"
-assert_same "$ROOT/config/fastfetch/config.omarchy-layout.jsonc" "$CFG" "默认 profile 内容一致"
+assert_same "$ROOT/config/fastfetch/omarchy-layout.jsonc" "$CFG" "默认 profile 内容一致"
 assert_grep "$MARKER" "omarchy" "profile 标记"
 assert_exec "$FF_BIN" "ff 已安装且可执行"
 assert_grep "$HOME_DIR/.bashrc" "omarchy-config" "shell 集成已写入"
@@ -74,14 +74,19 @@ assert_eq "$(find "$HOME_DIR/.config/fastfetch" -maxdepth 1 -name '*.bak.*' | wc
 
 printf '\n\033[1m5. 切换 profile\033[0m\n'
 if run "$ROOT/install.sh" fastfetch --profile shorin >/dev/null 2>&1; then ok "切 profile 退出码 0"; else bad "切 profile 退出码非 0"; fi
-assert_same "$ROOT/config/fastfetch/config.shorin-tree.jsonc" "$CFG" "已切到 shorin 布局"
+assert_same "$ROOT/config/fastfetch/shorin-tree.jsonc" "$CFG" "已切到 shorin 布局"
 assert_grep "$MARKER" "shorin" "profile 标记已更新"
 
 printf '\n\033[1m6. 字体\033[0m\n'
+# 预置一个带其它键的 VS Code 设置，验证模板合并不覆盖已有配置
+mkdir -p "$HOME_DIR/.config/Code/User"
+printf '{\n  "workbench.colorTheme": "Ristretto"\n}\n' > "$HOME_DIR/.config/Code/User/settings.json"
 if run env MAPLE_FAMILY="Test Mono" "$ROOT/install.sh" font >/dev/null 2>&1; then ok "install font 退出码 0"; else bad "install font 退出码非 0"; fi
 assert_file "$FONTS_CONF" "fonts.conf 已生成"
 assert_grep "$FONTS_CONF" "Test Mono" "字体名已代入"
 assert_no_grep "$FONTS_CONF" "@FAMILY@" "模板占位符已替换"
+assert_grep "$HOME_DIR/.config/Code/User/settings.json" "Test Mono" "VS Code 字体按模板写入"
+assert_grep "$HOME_DIR/.config/Code/User/settings.json" "Ristretto" "VS Code 原有设置未被覆盖"
 
 printf '\n\033[1m7. status 反映已安装状态\033[0m\n'
 status_out="$(run "$ROOT/install.sh" status 2>&1 || true)"

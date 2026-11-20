@@ -6,7 +6,7 @@
 [![check](https://github.com/EzraX21/omarchy-config/actions/workflows/check.yml/badge.svg)](https://github.com/EzraX21/omarchy-config/actions/workflows/check.yml)
 ![platform](https://img.shields.io/badge/platform-Omarchy%20%7C%20Arch-1793d1)
 ![shell](https://img.shields.io/badge/shell-bash%205-4eaa25)
-![smoke](https://img.shields.io/badge/smoke-25%20assertions-brightgreen)
+![smoke](https://img.shields.io/badge/smoke-27%20assertions-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT%20%2B%20AGPL--3.0-blue)
 
 
@@ -85,6 +85,19 @@ fastfetch        # 第一次会自动补 5 张图，之后每次换一张
 > 图形 logo 也只能退化成方块。完整效果运行 `./install.sh` 后自己看。
 > 想补真截图：在 foot 里跑 `fastfetch`，用 `omarchy capture screenshot` 存到 `docs/images/` 即可。
 
+## 配置按软件分开
+
+`config/` 下每个目录只服务一个软件，互不混放：
+
+| 目录 | 属于谁 | 内容 | 安装到 |
+|---|---|---|---|
+| `config/fastfetch/` | fastfetch | 7 套布局（`omarchy-layout` / `shorin-tree` / `plain` + `variants/`） | `~/.config/fastfetch/config.jsonc` |
+| `config/noctalia/` | Noctalia | matugen 模板 + `user-templates.toml` 注册片段 | 手动放到 `~/.config/noctalia/`（可选） |
+| `config/fontconfig/` | fontconfig | `fonts.conf.tpl`（泛用族别名） | `~/.config/fontconfig/fonts.conf` |
+| `config/vscode/` | VS Code | `settings-font.jsonc`（字体键片段） | 深合并进 `~/.config/Code/User/settings.json` |
+
+`install.sh` 只自动装 fastfetch 与 fontconfig；`noctalia` 与 `vscode` 是素材/片段，由对应流程或手动取用。
+
 ## 命令一览
 
 | 命令 | 作用 |
@@ -144,7 +157,8 @@ scripts/fastfetch-random-wife.sh --nsfw     # NSFW 图源（缓存目录不同�
    把 `sans-serif` / `serif` / `monospace` 全部指向 Maple，并给中文回退 `Noto Sans CJK SC`
    （`system-ui` 无法经 fontconfig 重映射，实测无效，故不处理）；
 5. `gsettings` 三个 GTK 字体键；
-6. VS Code 的 `editor.fontFamily` / 终端字体 / 连字。
+6. VS Code：把 `config/vscode/settings-font.jsonc` 渲染后**深合并**进 `~/.config/Code/User/settings.json`
+   （只覆盖字体相关的键，其它设置保留）。
 
 **顺序不能反**：`omarchy font set` 会整份覆写 `fonts.conf`，所以模板必须在它之后写。
 **代价**：Maple Mono 是等宽字体，全局当 sans-serif 用会让 GUI 也是等宽观感。
@@ -168,7 +182,7 @@ scripts/fastfetch-random-wife.sh --nsfw     # NSFW 图源（缓存目录不同�
 ~/.config/fontconfig/fonts.conf            ← 生成
 ~/.config/{foot,alacritty,kitty,ghostty}/   ← omarchy font set 写字体行
 dconf (gsettings)                          ← GTK 字体键
-~/.config/Code/User/settings.json          ← 仅当该文件是纯 JSON
+~/.config/Code/User/settings.json          ← 深合并字体键（仅当该文件是纯 JSON）
 ```
 
 ## 卸载
@@ -186,7 +200,7 @@ dconf (gsettings)                          ← GTK 字体键
 
 ```bash
 python3 tests/validate-configs.py config   # 所有 .jsonc 可解析（含 logo.type 提示）
-bash tests/smoke.sh                        # 隔离 HOME 跑完整流程，25 项断言
+bash tests/smoke.sh                        # 隔离 HOME 跑完整流程，27 项断言
 ```
 
 `smoke.sh` 用临时 `HOME` + stub 掉的 `omarchy`/`gsettings`/`fc-*`，**不碰真实 `~/.config`**。
@@ -206,5 +220,5 @@ CI（`.github/workflows/check.yml`）跑四件事：`bash -n` 全量、`shellche
 ## 许可
 
 本项目自身脚本（`install.sh`、`bin/ff`、`scripts/font-setup.sh`）为 MIT；
-`config/fastfetch/` 下衍生自 shorin-arch-setup 的配置与 `scripts/fastfetch-random-wife.sh` 为 **AGPL-3.0-or-later**。
+`config/fastfetch/`、`config/noctalia/` 下衍生自 shorin-arch-setup 的配置与 `scripts/fastfetch-random-wife.sh` 为 **AGPL-3.0-or-later**。
 分发时请以更严格者为准，详见 [THIRD_PARTY.md](THIRD_PARTY.md)。
